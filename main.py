@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 import numpy as np
 import argparse
 
@@ -15,7 +16,6 @@ def load(file_name='./data.dat'):
 
 def linearRegression(x, y, m, _lambda):
     x = _dimensionProjection(x, m)
-    print('proj: ', x)
     inverse_term = np.dot(x.T, x) + _lambda * np.eye(np.shape(np.dot(x.T, x))[0])
     loss_inv = np.linalg.pinv(inverse_term),
     return np.dot(np.dot(loss_inv, x.T), y)
@@ -23,20 +23,28 @@ def linearRegression(x, y, m, _lambda):
 def _dimensionProjection(x, m):
     """
         Raise the dimension as the demend
+
+        [
+            [4, 1]
+            [2, 1]
+        ]
+
+
+        [
+            [16, 4, 1]
+            [ 4, 2, 1]
+        ]
     """
     result = None
     for i in range(m, 0, -1):
         if type(result) == type(None):
             result = np.expand_dims(x.T[0] ** i, axis=0)
-            print(result)
         else:
             result = np.concatenate((result, np.expand_dims(x.T[0] ** i, axis=0)), axis=0)
-            print(result)
     result = np.concatenate((result, np.expand_dims(np.ones(np.shape(x.T[0])), axis=0)), axis=0)
     return result.T
 
 def printOutModel(weights):
-    weights = np.round(np.reshape(weights, [-1]), decimals=5)
     print('f(x) = ', end='')
     have_print_symbol = False
     for i in range(len(weights), 0, -1):
@@ -46,6 +54,22 @@ def printOutModel(weights):
             print(weights[len(weights) - i], '* x^', i-1, end='')
             have_print_symbol = True
     print('')
+
+def draw(x, y, m, weights):
+    # Plot points
+    x = x.T[0]
+    y = y.T[0]
+    plt.plot(x, y, 'o')
+
+    # Plot curve
+    curve_x = np.linspace(np.min(x), np.max(x))
+    _curve_x = np.concatenate((np.expand_dims(curve_x, axis=0), np.expand_dims(np.ones(len(curve_x)), axis=0))).T
+    _curve_x = _dimensionProjection(_curve_x, m)
+    _curve_y = np.reshape(np.dot(_curve_x, weights), [-1])
+    plt.plot(curve_x, _curve_y)
+
+    # Show
+    plt.show()
 
 if __name__ == '__main__':
     # Parse the arguement
@@ -57,5 +81,7 @@ if __name__ == '__main__':
 
     # Linear regression
     x, y = load(args.file_name)
-    weight = linearRegression(x, y, args.m, args._lambda)
-    printOutModel(weight)
+    weights = linearRegression(x, y, args.m, args._lambda)
+    weights = np.round(np.reshape(weights, [-1]), decimals=5)
+    printOutModel(weights)
+    draw(x, y, args.m, weights)
