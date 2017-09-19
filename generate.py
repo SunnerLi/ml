@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import argparse
 
-scale_factor = 10
+scale_factor = 10   # The scale factor which will be used to normalize the range of x
 
 if __name__ == '__main__':
     # Parse argument
