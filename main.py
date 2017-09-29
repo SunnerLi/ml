@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import scratch as mp
 import numpy as np
 import argparse
 from scipy.linalg import lu, inv
@@ -24,19 +25,6 @@ def load(file_name='./data.dat'):
     y = np.expand_dims(np.asarray(y), axis=0)
     return x.T, y.T
 
-def invLU(_arr):
-    """
-        Get the inverse array by the LU decomposition
-
-        Arg:    The array you want to get inverse
-        Ret:    The inversed array
-    """
-    p, l, u = lu(_arr)
-    u_inv = inv(u)
-    l_inv = inv(l)
-    arr_inv = np.dot(u_inv, l_inv)
-    return np.dot(u_inv, l_inv)
-
 def linearRegression(x, y, m, _lambda, use_lu=False):
     """
         Do the linear regression with regularization term
@@ -55,12 +43,12 @@ def linearRegression(x, y, m, _lambda, use_lu=False):
         Ret:    The optimal wights array
     """
     x = _dimensionProjection(x, m)
-    inverse_term = np.dot(x.T, x) + _lambda * np.eye(np.shape(np.dot(x.T, x))[0])
+    inverse_term = mp.mul(x.T, x) + _lambda * np.eye(np.shape(mp.mul(x.T, x))[0])
     if use_lu:
-        loss_inv = invLU(inverse_term)
+        loss_inv = mp.inv_by_lu(inverse_term)
     else:
         loss_inv = np.linalg.inv(inverse_term)
-    return np.dot(np.dot(loss_inv, x.T), y)
+    return mp.mul(mp.mul(loss_inv, mp.T(x)), y)
 
 def _dimensionProjection(x, m):
     """
@@ -83,11 +71,11 @@ def _dimensionProjection(x, m):
     result = None
     for i in range(m, 0, -1):
         if type(result) == type(None):
-            result = np.expand_dims(x.T[0] ** i, axis=0)
+            result = np.expand_dims(mp.T(x)[0] ** i, axis=0)
         else:
-            result = np.concatenate((result, np.expand_dims(x.T[0] ** i, axis=0)), axis=0)
-    result = np.concatenate((result, np.expand_dims(np.ones(np.shape(x.T[0])), axis=0)), axis=0)
-    return result.T
+            result = np.concatenate((result, np.expand_dims(mp.T(x)[0] ** i, axis=0)), axis=0)
+    result = np.concatenate((result, np.expand_dims(np.ones(np.shape(mp.T(x)[0])), axis=0)), axis=0)
+    return mp.T(result)
 
 def printOutModel(weights):
     """
@@ -140,7 +128,8 @@ def draw(x, y, m, weights):
     curve_x = np.linspace(np.min(x), np.max(x), num=50000)
     _curve_x = np.concatenate((np.expand_dims(curve_x, axis=0), np.expand_dims(np.ones(len(curve_x)), axis=0))).T
     _curve_x = _dimensionProjection(_curve_x, m)
-    _curve_y = np.reshape(np.dot(_curve_x, weights), [-1])
+    # _curve_y = np.reshape(np.dot(_curve_x, weights), [-1])
+    _curve_y = np.reshape(mp.mul(_curve_x, weights), [-1])
     plt.plot(curve_x, _curve_y)
 
     # Show
@@ -169,7 +158,7 @@ def drawMultiple(x, y, m, weights):
         plt.plot(x.T[0], y.T[0], 'o')
 
         # Plot curve
-        _curve_y = np.reshape(np.dot(_curve_x, weights[i]), [-1])
+        _curve_y = np.reshape(mp.mul(_curve_x, weights[i]), [-1])
         plt.plot(curve_x, _curve_y)
         plt.title('lambda=' + str(lambdas[i]) + '  LSE=' + str(getError(x, y, m, weights[i])))
 
