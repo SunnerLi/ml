@@ -14,7 +14,6 @@ def read_imgs(path='./train-images-idx3-ubyte'):
     fmt_header = '>iiii'
     offset = 0
     _, batch, height, width = struct.unpack_from(fmt_header, idx_whole_string, offset=offset)
-    print('shape: ', batch, height, width)
 
     # Analysis the contain
     imgs = np.zeros([batch, height * width])
@@ -33,7 +32,6 @@ def read_label(path='train-labels-idx1-ubyte'):
     fmt_header = '>ii'
     offset = 0
     _, batch = struct.unpack_from(fmt_header, idx_whole_string, offset=offset)
-    print('batch: ', batch)
 
     # Read label contain
     tags = np.zeros([batch])
