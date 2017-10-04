@@ -1,4 +1,4 @@
-from classifier import NaiveBayseClassifier
+from classifier2 import NaiveBayseClassifier
 from data_helper import load_data
 from utils import print2File2D, print2File1D, printResult
 import numpy as np
