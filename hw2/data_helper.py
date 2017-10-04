@@ -12,16 +12,19 @@ def read_imgs(path='./train-images-idx3-ubyte'):
     # Read header
     idx_whole_string = open(path, 'rb').read()
     fmt_header = '>iiii'
-    _, batch, height, width = struct.unpack_from(fmt_header, idx_whole_string)
+    offset = 0
+    _, batch, height, width = struct.unpack_from(fmt_header, idx_whole_string, offset=offset)
     print('shape: ', batch, height, width)
 
     # Analysis the contain
     imgs = np.zeros([batch, height * width])
     fmt_img = '>' + str(height * width) + 'B'
+    offset += struct.calcsize(fmt_header)
     img_size = struct.calcsize(fmt_img)
     for i in range(batch):
-        _img_contain = struct.unpack_from(fmt_img, idx_whole_string, struct.calcsize(fmt_header))
+        _img_contain = struct.unpack_from(fmt_img, idx_whole_string, offset=offset)
         imgs[i] = np.asarray(_img_contain)
+        offset += struct.calcsize(fmt_img)
     return imgs
 
 def read_label(path='train-labels-idx1-ubyte'):
