@@ -1,6 +1,8 @@
 from data_helper import load_data
-import numpy as np
+# import numpy as np
+import mumpy as np
 import math
+import time
 
 """
     This program contain the scratch implementation of Naive Bayes classifier
@@ -61,6 +63,7 @@ class NaiveBayseClassifier(object):
             self.prior[i] = float(len(arr_y[arr_y == float(i)])) / batch
 
         # Calculate the likelihood
+        _time = time.time()
         for i in range(self.num_class):
             _arr_x = arr_x[arr_y == float(i)].T
             for j in range(self.num_feature):
@@ -71,7 +74,10 @@ class NaiveBayseClassifier(object):
                     x_single_feature = _arr_x[j]
                     for k in range(self.num_bin):
                         idx = np.logical_and(x_single_feature >= k*self.dis_width, x_single_feature < k*self.dis_width + self.dis_width)
-                        self.distribution[i][j][k] += np.shape(_arr_x[j][idx])[0] / np.shape(x_single_feature)[0]
+                        up = np.shape(_arr_x[j][idx])[0]
+                        down = np.shape(x_single_feature)[0]
+                        self.distribution[i][j][k] +=  up / down
+        print('time spend: ', time.time()-_time)
 
     def predict(self, arr_x):
         """

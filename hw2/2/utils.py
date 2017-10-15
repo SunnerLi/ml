@@ -1,4 +1,4 @@
-import numpy as np
+import mumpy as np
 
 def gamma(z):
     if z <= 2:

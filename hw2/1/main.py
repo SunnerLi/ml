@@ -24,5 +24,5 @@ if __name__ == '__main__':
     print('train...')
     clf.fit(train_x, train_y)
     print('predict...')
-    res = clf.predict(test_x[:100])
-    printResult(res, test_y[:100])
+    res = clf.predict(test_x)
+    printResult(res, test_y)
