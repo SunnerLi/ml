@@ -3,6 +3,10 @@ from q1 import gaussian
 import argparse
 import math
 
+"""
+$ python online_learning.py --mean 3.0 --var 2.0 --size 500
+"""
+
 revised_mean = 0.0
 
 def onlineLearning(mean, sample_var, popular_var, x, n):

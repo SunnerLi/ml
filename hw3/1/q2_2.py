@@ -4,6 +4,10 @@ import numpy as np
 import argparse
 import random
 
+"""
+$ python q2_2.py --n 3 --a 2.0 --size 50 --w 0.5 --w -0.1 --w 0.01
+"""
+
 def phi(x, m):
     res = np.empty([1, m+1])
     for i in range(m+1):

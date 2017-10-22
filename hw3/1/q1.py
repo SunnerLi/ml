@@ -5,6 +5,10 @@ import argparse
 import random
 import math
 
+"""
+$ python q1.py --mean 3.0 --var 2.0 --size 100000
+"""
+
 def __generate(miu, std):
     u = random.random()
     v = random.random()
