@@ -7,7 +7,7 @@ import argparse
 import random
 
 """
-$ python main2.py --alpha 1.0 --beta 1.0 --size 100 --w 0.5 --w -0.4 --w 0 --w 0.001
+$ python main.py --alpha 1.0 --beta 1.0 --size 100 --w 0.5 --w -0.4 --w 0 --w 0.001
 """
 
 revised_mean = 0.0
@@ -49,26 +49,33 @@ if __name__ == '__main__':
 
     # Initalize w
     generator_weight = args.w
+    byaesian_mean = np.ones([bayesian_order+1, 1])
+    bayesian_precision = np.eye(bayesian_order+1, dtype=float)
     m_0 = np.ones([bayesian_order+1])
     S_0 = np.eye(bayesian_order+1, dtype=float)
- 
+
     # Train
-    for i in range(1, args.size):
+    var_list = []
+    for i in range(1, args.size+1):
         x_arr, y_arr = generateLinearModel(generator_order, alpha, 1, generator_weight)
         x_arr = get_phi(x_arr, bayesian_order)
+        
+        # Get posterior
         S_N = np.linalg.inv(np.linalg.inv(S_0) + beta * x_arr.T.dot(x_arr))
         m_N = S_N.dot(np.linalg.inv(S_0).dot(m_0) + beta * x_arr.T.dot(y_arr))
-        pred_mean = np.expand_dims(m_N.T, axis=-1)
-        pred_vars = 1./beta + x_arr.dot(S_N)
-        S_0 = S_N
-        m_0 = m_N
-        print('point: ', (x_arr[0][1], y_arr[0]), '\tmean: ', np.reshape(pred_mean, [-1]), '\tvar: ', np.reshape(pred_vars, [-1]))
 
-    # Draw
-    x_list = np.linspace(0, 10, num=500)
-    y_list = np.asarray(generator_weight).dot(_dimensionProjection(x_list, generator_order))
-    plt.plot(x_list, y_list, '-', label='generated')
-    pred_list = np.reshape(pred_mean, [-1]).dot(_dimensionProjection(x_list, bayesian_order))
-    plt.plot(x_list, pred_list, '-', label='bayesian')
-    plt.legend()
+        # Get predictive distribution
+        posterior_mean = m_N.dot(np.expand_dims(x_arr, -1))
+        posterior_vars = 1./beta + x_arr.dot(S_N).dot(x_arr.T)
+
+        # Update prior
+        S_0 = S_N
+        m_0 = m_N     
+
+        # Pring parameter   
+        print('point: ', (x_arr[0][1], y_arr[0]), '\tmean: ', np.reshape(posterior_mean, [-1]), '\tvar: ', np.reshape(posterior_vars, [-1]))
+        var_list.append(posterior_vars[0][0])
+
+    # Show trend of var
+    plt.plot(range(len(var_list)), var_list, '-o')
     plt.show()
