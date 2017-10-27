@@ -1,6 +1,6 @@
 from collections import OrderedDict, Counter
 from matplotlib import pyplot as plt
-import numpy as np
+import mumpy as np
 import argparse
 import random
 import math
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     if size == 1:
         print('generated: ', num_list)
     else:
-        num_list = np.round(num_list, 1)
+        num_list = np._round(num_list, 1)
         counter = Counter(num_list)
         print('mean: ', np.mean(num_list))
         print('var: ', np.var(num_list))

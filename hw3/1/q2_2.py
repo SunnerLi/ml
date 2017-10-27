@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 from q1 import gaussian
-import numpy as np
+import mumpy as np
 import argparse
 import random
 

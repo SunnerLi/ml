@@ -2,7 +2,7 @@ import _init_path
 from q2_2 import Y, generateLinearModel
 from matplotlib import pyplot as plt
 from q1 import gaussian
-import numpy as np
+import mumpy as np
 import argparse
 import random
 
@@ -61,8 +61,8 @@ if __name__ == '__main__':
         x_arr = get_phi(x_arr, bayesian_order)
         
         # Get posterior
-        S_N = np.linalg.inv(np.linalg.inv(S_0) + beta * x_arr.T.dot(x_arr))
-        m_N = S_N.dot(np.linalg.inv(S_0).dot(m_0) + beta * x_arr.T.dot(y_arr))
+        S_N = np.inv(np.inv(S_0) + beta * x_arr.T.dot(x_arr))
+        m_N = S_N.dot(np.inv(S_0).dot(m_0) + beta * x_arr.T.dot(y_arr))
 
         # Get predictive distribution
         posterior_mean = m_N.dot(np.expand_dims(x_arr, -1))
