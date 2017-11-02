@@ -52,8 +52,6 @@ def T(a):
     return res
 
 def dot(a, b):
-    print('a: ', a)
-    print('b: ', b)
     if len(np.shape(a)) < 2:
         a = np.expand_dims(a, axis=-1)
     if len(np.shape(b)) < 2:
