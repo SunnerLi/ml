@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 def generateData(num_points=100):
-    data = np.concatenate((np.random.normal(loc=1.0, scale=1.0, size=[num_points, 2]) , np.random.normal(loc=10.0, scale=1.0, size=[num_points, 2])))
+    data = np.concatenate((np.random.normal(loc=1.0, scale=1.0, size=[num_points, 2]) , np.random.normal(loc=3.0, scale=1.0, size=[num_points, 2])))
     plt.plot(data[:, 0], data[:, 1], 'o')
     # plt.show()
     return data
@@ -15,6 +15,17 @@ def equal(arr1, arr2):
             if arr1[i][j] != arr2[i][j]:
                 return False
     return True
+
+def draw(data_arr, tag_arr, centers, title, k_cluster):
+    plt.figure(1)
+    for i in range(k_cluster):
+        sub_data = data_arr[:, tag_arr == i]
+        plt.plot(sub_data[0], sub_data[1], 'o', label='group_%s'%str(i))
+    if not type(centers) == type(None):
+        plt.plot(centers[0], centers[1], 'o', label='center')
+    plt.title(title)
+    plt.legend()
+    plt.show()
 
 def K_Means(data_arr, k):
     """
@@ -47,19 +58,12 @@ def K_Means(data_arr, k):
         # print('new center: ', centers)
 
         # Draw
-        plt.figure(1)
-        for i in range(k):
-            sub_data = data_arr[:, tags == i]
-            plt.plot(sub_data[0], sub_data[1], 'o', label='group_%s'%str(i))
-        if not type(centers) == type(None):
-            plt.plot(centers[0], centers[1], 'o', label='center')
-        plt.title('iter_%s'%str(stop_counter))
-        plt.legend()
-        plt.show()
+        draw(data_arr, tags, centers, 'iter_%s'%str(stop_counter), k)
 
         # Break
         if not type(previous_center) == type(None):
             if equal(centers, previous_center) == True or stop_counter > 20:
+                draw(data_arr, tags, centers, 'final', k)
                 break
         
         previous_center = np.copy(centers)
