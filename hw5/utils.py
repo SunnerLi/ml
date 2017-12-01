@@ -2,8 +2,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import random
 
-def generateData(num_points=4):
-    data = np.concatenate((np.random.normal(loc=1.0, scale=1.0, size=[num_points, 2]) , np.random.normal(loc=10.0, scale=1.0, size=[num_points, 2])))
+def generateData(num_points=30):
+    data = np.concatenate((np.random.normal(loc=1.0, scale=1.0, size=[num_points, 2]) , np.random.normal(loc=5.0, scale=1.0, size=[num_points, 2])))
     plt.plot(data[:, 0], data[:, 1], 'o')
     # plt.show()
     return data

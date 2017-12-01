@@ -29,6 +29,7 @@ def Kernel_K_Means(data_arr, k_cluster):
 
     previous_distance_arr = None
     stop_counter = 0
+    print('tag_arr: ', tag_arr)
     while True:   
         # Calculate distance
         for k in range(k_cluster):     
@@ -63,6 +64,7 @@ def Kernel_K_Means(data_arr, k_cluster):
                 break
         previous_distance_arr = distance_arr
         stop_counter += 1
+    return tag_arr
         
-
-Kernel_K_Means(generateData(), 2)
+if __name__ == '__main__':
+    Kernel_K_Means(generateData(), 2)
