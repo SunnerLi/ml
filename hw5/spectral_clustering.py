@@ -1,6 +1,7 @@
 from kernel_k_means import Kernel_K_Means
 from matplotlib import pyplot as plt
 from scipy.linalg import eigh, eig
+from k_means import K_Means_Init
 from utils import *
 import numpy as np
 import random
@@ -24,8 +25,19 @@ def K_Means(data_arr, k_cluster):
     for i in range(1):
         # E step 
         if i == 0:
+            # Random initialize
             for j in range(num_points):
                 tag_arr[random.randint(0, k_cluster-1)][j] = 1
+
+            
+            # Use K-means++ idea to define the center
+            tag_arr = np.zeros([k_cluster, num_points])
+            centers = K_Means_Init(data_arr, k_cluster)
+            print(centers)
+            for i in range(num_points):
+                tag_arr[np.argmin(np.sqrt(np.sum(np.square(centers - data_arr[:, i]), axis=0)))][i] = 1
+            print(tag_arr)
+            
         else:
             tag_arr = np.zeros([k_cluster, num_points])
             for j in range(num_points):
@@ -55,25 +67,17 @@ def SpectralWrapper(data_arr, k_cluster):
     for i in range(num_points):
         W[i] = kernel(data_arr, data_arr[:, i:i+1])
     D = np.diag(np.sum(W, axis=1))
-    print(W, '\n')
-    print(D)
 
     # Compute unnormalized graph laplacian
     L = W - D
-    print(L)
 
     # Compute first k generalized eigenvectors
     eigen_values, eigen_vectors = eig(L, D)
-    print('vector shape: ', np.shape(eigen_vectors))
     U = eigen_vectors[:, :k_cluster].T
 
-    print(U)
-    print('U shape: ', np.shape(U))
-
-
+    # Plot eigen space
     plt.figure(1)
-    plt.plot(U[0, :3], U[1, :3], 'o')
-    plt.plot(U[0, 3:], U[1, 3:], 'o')
+    plt.plot(U[0], U[1], 'o')
     plt.show()
 
     # k-means
@@ -83,4 +87,4 @@ def SpectralWrapper(data_arr, k_cluster):
     draw(data_arr, tag_arr, 'Spectral Clustering result', k_cluster)
 
 if __name__ == '__main__':
-    SpectralWrapper(generateData(), 2)
+    SpectralWrapper(generateData(), 3)

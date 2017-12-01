@@ -14,6 +14,30 @@ def draw(data_arr, tag_arr, centers, title, k_cluster):
     plt.legend()
     plt.show()
 
+def K_Means_Init(data_arr, k_cluster):
+    num_points = np.shape(data_arr)[1]
+    distance_arr = np.ndarray([num_points])
+    centers = [data_arr[:, random.randint(0, num_points - 1)]]
+    for i in range(k_cluster-1):
+        for j in range(num_points):
+            _dist = 0
+            for k in range(len(centers)):
+                _dist += np.sum(np.square(data_arr[:, j:j+1] - centers[k]))
+            distance_arr[j] = _dist
+        idx = argmax_Second(distance_arr)
+        centers.append(data_arr[:, idx:idx+1])
+    res_center = None
+    for i in range(k_cluster):
+        if res_center is None:
+            res_center = np.expand_dims(centers[i], axis=-1)
+        else:
+            res_center = np.concatenate((res_center, centers[i]), axis=-1)
+    plt.figure(1)
+    plt.plot(data_arr[0], data_arr[1], 'o')
+    plt.plot(res_center[0], res_center[1], 'o')                
+    plt.show()
+    return res_center
+
 def K_Means(data_arr, k):
     """
         data_arr = (2 * N)
@@ -26,6 +50,9 @@ def K_Means(data_arr, k):
     random.shuffle(idx)
     centers = data_arr[:, idx[:k]]
     tags = np.zeros([num_points])        
+
+    # Use K-means++ idea to define the center
+    centers = K_Means_Init(data_arr, k)
 
     # Clustering
     previous_center = None
@@ -55,6 +82,7 @@ def K_Means(data_arr, k):
         
         previous_center = np.copy(centers)
         stop_counter += 1
+    
         
 if __name__ == '__main__':
     K_Means(generateData(), 2)

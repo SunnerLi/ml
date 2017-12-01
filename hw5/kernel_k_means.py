@@ -1,4 +1,6 @@
+from scipy.cluster.hierarchy import fcluster, linkage
 from matplotlib import pyplot as plt
+from k_means import K_Means_Init
 from utils import *
 import numpy as np
 import random
@@ -11,7 +13,7 @@ def draw(data_arr, tag_arr, title, k_cluster):
         plt.plot(sub_data[0], sub_data[1], 'o', label='group_%s'%str(k))
     plt.title(title)
     plt.legend()
-    plt.show()
+    plt.show()    
 
 def Kernel_K_Means(data_arr, k_cluster):
     """
@@ -25,6 +27,12 @@ def Kernel_K_Means(data_arr, k_cluster):
     # Random initialize tag
     for i in range(num_points):
         tag_arr[random.randint(0, k_cluster - 1)][i] = 1
+
+    # Use K-means++ idea to define the center
+    tag_arr = np.zeros([k_cluster, num_points])
+    centers = K_Means_Init(data_arr, k_cluster)
+    for i in range(num_points):
+        tag_arr[np.argmin(np.sqrt(np.sum(np.square(centers - data_arr[:, i]), axis=0)))][i] = 1
 
 
     previous_distance_arr = None
