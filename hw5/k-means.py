@@ -1,20 +1,7 @@
 from matplotlib import pyplot as plt
+from utils import *
 import numpy as np
 import random
-
-def generateData(num_points=100):
-    data = np.concatenate((np.random.normal(loc=1.0, scale=1.0, size=[num_points, 2]) , np.random.normal(loc=3.0, scale=1.0, size=[num_points, 2])))
-    plt.plot(data[:, 0], data[:, 1], 'o')
-    # plt.show()
-    return data
-
-def equal(arr1, arr2):
-    len1, len2 = np.shape(arr1)
-    for i in range(len1):
-        for j in range(len2):
-            if arr1[i][j] != arr2[i][j]:
-                return False
-    return True
 
 def draw(data_arr, tag_arr, centers, title, k_cluster):
     plt.figure(1)
@@ -69,5 +56,5 @@ def K_Means(data_arr, k):
         previous_center = np.copy(centers)
         stop_counter += 1
         
-
-K_Means(generateData(), 2)
+if __name__ == '__main__':
+    K_Means(generateData(), 2)
