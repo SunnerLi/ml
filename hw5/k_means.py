@@ -12,7 +12,8 @@ def draw(data_arr, tag_arr, centers, title, k_cluster):
         plt.plot(centers[0], centers[1], 'o', label='center')
     plt.title(title)
     plt.legend()
-    plt.show()
+    plt.savefig(title)
+    plt.gcf().clear()
 
 def K_Means_Init(data_arr, k_cluster):
     num_points = np.shape(data_arr)[1]
@@ -24,7 +25,13 @@ def K_Means_Init(data_arr, k_cluster):
             for k in range(len(centers)):
                 _dist += np.sum(np.square(data_arr[:, j:j+1] - centers[k]))
             distance_arr[j] = _dist
+
+        # Deal with duplicated distance
         idx = argmax_Second(distance_arr)
+        new_center = data_arr[:, idx:idx+1]
+        if exist(new_center, centers):
+            idx = random.randint(0, np.shape(data_arr)[1])
+            
         centers.append(data_arr[:, idx:idx+1])
     res_center = None
     for i in range(k_cluster):
@@ -35,14 +42,15 @@ def K_Means_Init(data_arr, k_cluster):
     plt.figure(1)
     plt.plot(data_arr[0], data_arr[1], 'o')
     plt.plot(res_center[0], res_center[1], 'o')                
-    plt.show()
+    plt.savefig('initial')
+    plt.gcf().clear()
+    print(res_center)
     return res_center
 
 def K_Means(data_arr, k):
     """
         data_arr = (2 * N)
     """
-    data_arr = data_arr.T
     num_points = np.shape(data_arr)[1]
 
     # Random Define the center
@@ -61,15 +69,13 @@ def K_Means(data_arr, k):
         # E-step
         tags = np.empty([num_points])
         for i in range(num_points):
-            tags[i] = np.argmin(np.sqrt(np.sum(np.square(centers - data_arr[:, i]), axis=0)))
+            tags[i] = np.argmin(np.sqrt(np.sum(np.square(centers - np.expand_dims(data_arr[:, i], axis=-1)), axis=0)))
 
         # M-step
         for i in range(k):
             sub_data = data_arr[:, tags == i]
             new_center = np.mean(sub_data, axis=-1)
-            centers[i] = new_center
-        centers = centers.T
-        # print('new center: ', centers)
+            centers[:, i:i+1] = np.expand_dims(new_center, axis=-1)
 
         # Draw
         draw(data_arr, tags, centers, 'iter_%s'%str(stop_counter), k)
@@ -85,4 +91,11 @@ def K_Means(data_arr, k):
     
         
 if __name__ == '__main__':
-    K_Means(generateData(), 2)
+    # Random try
+    # data_arr = generateData()
+    # data_arr = data_arr.T
+    # K_Means(data_arr)
+
+    # HW5 data
+    data_arr, tag_arr = loadData(data_path = './test2_data.txt', tag_path = './test2_ground.txt')
+    K_Means(data_arr, 2)

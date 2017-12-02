@@ -13,13 +13,13 @@ def draw(data_arr, tag_arr, title, k_cluster):
         plt.plot(sub_data[0], sub_data[1], 'o', label='group_%s'%str(k))
     plt.title(title)
     plt.legend()
-    plt.show()    
+    plt.savefig(title)
+    plt.gcf().clear()
 
 def Kernel_K_Means(data_arr, k_cluster):
     """
         data_arr = (2 * N)
     """
-    data_arr = data_arr.T
     num_points = np.shape(data_arr)[1]
     tag_arr = np.zeros([k_cluster, num_points])
     distance_arr = np.ndarray([k_cluster, num_points])
@@ -29,13 +29,14 @@ def Kernel_K_Means(data_arr, k_cluster):
         tag_arr[random.randint(0, k_cluster - 1)][i] = 1
 
     # Use K-means++ idea to define the center
+    
     tag_arr = np.zeros([k_cluster, num_points])
     centers = K_Means_Init(data_arr, k_cluster)
     for i in range(num_points):
-        tag_arr[np.argmin(np.sqrt(np.sum(np.square(centers - data_arr[:, i]), axis=0)))][i] = 1
+        tag_arr[np.argmin(np.sqrt(np.sum(np.square(centers - np.expand_dims(data_arr[:, i], axis=-1)), axis=0)))][i] = 1    
+    
 
-
-    previous_distance_arr = None
+    previous_tag_arr = None
     stop_counter = 0
     print('tag_arr: ', tag_arr)
     while True:   
@@ -62,17 +63,29 @@ def Kernel_K_Means(data_arr, k_cluster):
         for j in range(num_points):
             tag_arr[np.argmin(distance_arr[:, j])][j] = 1
 
+        # print(data_arr)
+
         # Draw
         draw(data_arr, tag_arr, 'iter_%s'%str(stop_counter), k_cluster)
 
         # Stop or not
-        if not previous_distance_arr is None:
-            if equal(previous_distance_arr, distance_arr) == True or stop_counter > 20:
+        if not previous_tag_arr is None:
+            if equal(previous_tag_arr, tag_arr) == True or stop_counter > 20:
+            # if stop_counter > 20:
                 draw(data_arr, tag_arr, 'final', k_cluster)
                 break
-        previous_distance_arr = distance_arr
+        previous_tag_arr = tag_arr
         stop_counter += 1
+
+        # exit()
     return tag_arr
         
 if __name__ == '__main__':
-    Kernel_K_Means(generateData(), 2)
+    # Random try
+    # data_arr = generateData()
+    # data_arr = data_arr.T
+    # Kernel_K_Means(data_arr, 2)
+
+    # HW5 data
+    data_arr, tag_arr = loadData(data_path = './test2_data.txt', tag_path = './test2_ground.txt')
+    Kernel_K_Means(data_arr, 2)
