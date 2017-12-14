@@ -50,7 +50,6 @@ def K_Means(data_arr, k_cluster):
             distance_arr[:, j] = np.dot(tag_arr, norm)
         print(distance_arr)
     
-    print(tag_arr)
 
 def SpectralWrapper(data_arr, tag_arr, k_cluster):
     """
@@ -69,14 +68,16 @@ def SpectralWrapper(data_arr, tag_arr, k_cluster):
         W[i] = kernel(data_arr, data_arr[:, i:i+1])
     D = np.diag(np.sum(W, axis=1))
 
-    # Compute unnormalized graph laplacian
+    # Add mask and compute unnormalized graph laplacian
+    for i in range(num_points):
+        W[i][i] = 0
     L = W - D
 
     # Compute first k generalized eigenvectors
     eigen_values, eigen_vectors = eig(L, D)
     U = eigen_vectors[:, :k_cluster].T
     # U = eigen_vectors[:k_cluster]
-    U[0] *= 1e+2
+    U[0] *= 1e+7
 
     # Plot eigen space
     plt.figure(1)
@@ -113,4 +114,4 @@ if __name__ == '__main__':
 
     # HW5 data
     data_arr, tag_arr = loadData(data_path = './test2_data.txt', tag_path = './test2_ground.txt')
-    SpectralWrapper(data_arr, tag_arr, 2)
+    SpectralWrapper(data_arr, tag_arr, 4)

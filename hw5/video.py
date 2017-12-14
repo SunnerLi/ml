@@ -23,5 +23,5 @@ for _cluster in cluster_method:
             for image_name in img_list:
                 img = cv2.imread(join(subfolder, image_name))
                 cv2.imshow(_cluster, img)
-                cv2.waitKey(1000)
+                cv2.waitKey(250)
             cv2.waitKey(0)
