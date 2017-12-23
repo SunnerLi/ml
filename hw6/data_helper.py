@@ -17,6 +17,13 @@ def load_data():
     y_test = pd.read_csv(y_test_name).values
     return x_train.astype(np.float32), y_train, x_test.astype(np.float32), y_test
 
+def shuffle(arr_x, arr_y):
+    """
+        Shuffle x and y with the same order
+    """
+    idx = np.random.shuffle(np.asarray(range(len(arr_x))))
+    return arr_x[idx], arr_y[idx]
+
 def to_svm_format(arr_x, arr_y):
     """
         Change two array to two list which follow LIBSVM format
