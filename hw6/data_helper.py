@@ -15,7 +15,7 @@ def load_data():
     y_train = pd.read_csv(y_train_name).values
     x_test = pd.read_csv(x_test_name).values
     y_test = pd.read_csv(y_test_name).values
-    return x_train.astype(np.float32), y_train, x_test.astype(np.float32), y_test
+    return x_train.astype(np.float32), y_train - 1, x_test.astype(np.float32), y_test - 1
 
 def shuffle(arr_x, arr_y):
     """
