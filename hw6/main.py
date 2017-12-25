@@ -44,16 +44,6 @@ def GetSupportVector(list_y, model_name = 'svm.model'):
         is_sv_list[min_index] = 1
     return is_sv_list
 
-"""
-def doSVM(best_c, best_g, file_name = 'train.txt', model_name = 'svm.model'):
-    print('-' * 50, doSVM.__name__, '-'*50)
-    args = [libsvm_path + 'svm-train', '-s', '0', '-t', '2', '-c', str(best_c), '-g', str(best_g), file_name, model_name]
-    cmd = " ".join(args)
-    print(cmd)
-    proc = subprocess.Popen(cmd, shell=True)
-    proc.wait()
-"""
-
 def doPredict(input_file_name = 'border.txt', model_name = 'svm.model', output_file_name = 'border.out'):
     print('-' * 50, doPredict.__name__, '-'*50)
     args = [libsvm_path + 'svm-predict', input_file_name, model_name, output_file_name]
@@ -167,12 +157,7 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------------------
     # Q4: Plot boundary
     # --------------------------------------------------------------------------------------
-    # grid_list_arr = getCoordinateList(-10, 4, -2, 6)
-    # grid_list_arr = randomUpsampling(z_train, extend_dim=784)
-    # print(grid_list_arr)
-    # grid_list_arr = pca_reverse(grid_list_arr)
-    # print(grid_list_arr)
-
+    # Randomly generate points
     random_border1 = np.tile(x_train.T, 10).T
     random_border2 = np.tile(x_train.T, 10).T
     sample_position = np.random.random(np.shape(random_border1))
@@ -181,6 +166,7 @@ if __name__ == '__main__':
     random_border1 = pca(random_border1)[:, :2]
     random_border2 = pca(random_border2)[:, :2]
 
+    # Predict the label of generated points
     list_x_1, list_y_1 = to_svm_format(random_border1, np.tile(y_train.T, 10).T)
     list_x_2, list_y_2 = to_svm_format(random_border2, np.tile(y_train.T, 10).T)
     to_svm_file(list_x_1, list_y_1, file_name='border1.txt')
@@ -188,6 +174,7 @@ if __name__ == '__main__':
     doPredict(input_file_name = 'border1.txt', model_name = 'svm.model', output_file_name = 'border1.out')
     doPredict(input_file_name = 'border2.txt', model_name = 'svm.model', output_file_name = 'border2.out')
 
+    # Plot the possible boundary
     border1_predic_logits = np.asarray([ int(x[:-1]) for x in open('border1.out', 'r').readlines()])
     border2_predic_logits = np.asarray([ int(x[:-1]) for x in open('border2.out', 'r').readlines()])
     idx = np.invert(border1_predic_logits == border2_predic_logits)
@@ -197,5 +184,6 @@ if __name__ == '__main__':
     random_border = 0.5 * (random_border1 + random_border2)
     plt.plot(random_border[:, 0], random_border[:, 1], 'o', color=color_code[5], label='border')
 
+    # Show
     plt.legend()
     plt.show()
