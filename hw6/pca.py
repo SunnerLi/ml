@@ -25,7 +25,7 @@ def pca(X):
 
     if W is None:
         center_X = X - np.mean(X, axis=0)
-        whiten_X = center_X - np.std(center_X, axis=0)
+        whiten_X = center_X
         S = whiten_X.T.dot(whiten_X) / np.shape(whiten_X)[0] - 1
         Lambda, W = np.linalg.eigh(S)
         idx = np.argsort(Lambda)[::-1]

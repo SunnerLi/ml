@@ -1,6 +1,8 @@
 Notice
 ---
-In this homework, the LIBSVM is adopted. You should clone the repository of libsvm by yourself before you run the code.
+In this homework, the LIBSVM is adopted. You should clone the repository of libsvm by yourself before you run the code.    
+
+The `mnist_res2.png` shows the rough boundary of SVM.    
 
 ```
 # The ideal order in this folder

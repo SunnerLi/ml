@@ -24,8 +24,8 @@ def getCoordinateList(xmin, xmax, ymin, ymax, period = 1):
         counter += 1
     return grid_list
 
-# _list = np.asarray([ int(x[:-1]) for x in open('border1.out', 'r').readlines()])
-# print(_list, type(_list), type(_list[0]))
+_list = np.asarray([ int(x[:-1]) for x in open('border1.out', 'r').readlines()])
+print(_list, type(_list), type(_list[0]))
 
-a = np.asarray([True, False, True])
-print(np.invert(a))
+# a = np.asarray([True, False, True])
+# print(np.invert(a))

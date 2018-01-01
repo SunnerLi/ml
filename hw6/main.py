@@ -70,16 +70,16 @@ def doSubset(input_file_name = 'train.txt', output_file_name = 'subset.out', num
 def getCoordinateList(xmin, xmax, ymin, ymax, period = 1):
     print('-' * 50, getCoordinateList.__name__, '-'*50)
     # Validate the parameters
-    x_num = (xmax - xmin) // period + 1
-    y_num = (ymax - ymin) // period + 1
+    x_num = int((xmax - xmin) // period)
+    y_num = int((ymax - ymin) // period)
     if xmin > xmax:
         xmax, xmin = xmin, xmax
     if ymin > ymax:
         ymax, ymin = ymin, ymax
 
     # Get coordinate grids
-    x = np.linspace(-10, 4, x_num)
-    y = np.linspace(-2, 6, y_num)
+    x = np.linspace(xmin, xmax, x_num)
+    y = np.linspace(ymin, ymax, y_num)
     grid_x, grid_y = np.meshgrid(x, y)
     grid_list = np.ndarray([x_num * y_num, 2])
     print(np.shape(grid_x))
@@ -157,32 +157,28 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------------------
     # Q4: Plot boundary
     # --------------------------------------------------------------------------------------
-    # Randomly generate points
-    random_border1 = np.tile(x_train.T, 10).T
-    random_border2 = np.tile(x_train.T, 10).T
-    sample_position = np.random.random(np.shape(random_border1))
-    random_border1 = random_border1 + best_g * sample_position
-    random_border2 = random_border1 + 10 * best_g * sample_position
-    random_border1 = pca(random_border1)[:, :2]
-    random_border2 = pca(random_border2)[:, :2]
+    # Generate grid file
+    list_x, list_y = to_svm_format(z_train, y_train)
+    to_svm_file(list_x, list_y, file_name='train.txt')
+    doSVM(list_x, list_y, best_c, best_g, model_name = '2d.model')
 
     # Predict the label of generated points
-    list_x_1, list_y_1 = to_svm_format(random_border1, np.tile(y_train.T, 10).T)
-    list_x_2, list_y_2 = to_svm_format(random_border2, np.tile(y_train.T, 10).T)
-    to_svm_file(list_x_1, list_y_1, file_name='border1.txt')
-    to_svm_file(list_x_2, list_y_2, file_name='border2.txt')
-    doPredict(input_file_name = 'border1.txt', model_name = 'svm.model', output_file_name = 'border1.out')
-    doPredict(input_file_name = 'border2.txt', model_name = 'svm.model', output_file_name = 'border2.out')
+    grid_list = getCoordinateList(-10, 5, -5, 5, period = 0.05)
+    list_y = [[1]] * len(grid_list)
+    list_x, list_y = to_svm_format(grid_list, list_y)
+    to_svm_file(list_x, list_y, file_name='border.txt')
+    doPredict(input_file_name = 'border.txt', model_name = '2d.model', output_file_name = 'border.out')
 
     # Plot the possible boundary
-    border1_predic_logits = np.asarray([ int(x[:-1]) for x in open('border1.out', 'r').readlines()])
-    border2_predic_logits = np.asarray([ int(x[:-1]) for x in open('border2.out', 'r').readlines()])
-    idx = np.invert(border1_predic_logits == border2_predic_logits)
-    random_border1 = random_border1[idx]
-    random_border2 = random_border2[idx]
-    print(np.shape(random_border1), np.shape(random_border2))
-    random_border = 0.5 * (random_border1 + random_border2)
-    plt.plot(random_border[:, 0], random_border[:, 1], 'o', color=color_code[5], label='border')
+    border_predic_logits = np.asarray([ int(x[:-1]) for x in open('border.out', 'r').readlines()])
+    border_list = []
+    for i in range(1, len(border_predic_logits)):
+        if border_predic_logits[i] != border_predic_logits[i-1]:
+            if grid_list[i][0] != -10:
+                border_list.append(grid_list[i])
+    border_list = np.asarray(border_list)
+    print('border list: ', np.shape(border_list))
+    plt.plot(border_list[:, 0], border_list[:, 1], 'o', color=color_code[5], label='border')
 
     # Show
     plt.legend()
