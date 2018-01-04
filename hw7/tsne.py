@@ -11,7 +11,7 @@
 #
 #  Created by Laurens van der Maaten on 20-12-08.
 #  Copyright (c) 2008 Tilburg University. All rights reserved.
-from draw import drawScatter
+from draw import * 
 import numpy as np
 import pylab
 
@@ -117,7 +117,7 @@ def pca(X=np.array([]), no_dims=50):
     return Y
 
 
-def tsne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
+def tsne(origin_X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
     """
         Runs t-SNE on the dataset in the NxD array X to reduce its
         dimensionality to no_dims dimensions. The syntaxis of the function is
@@ -136,6 +136,7 @@ def tsne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
         return -1
 
     # Initialize variables
+    X = origin_X.copy()
     X = pca(X, initial_dims).real       # X shape after PCAL (2500, 50)
     (n, d) = X.shape
     max_iter = 100
@@ -147,6 +148,7 @@ def tsne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
     dY = np.zeros((n, no_dims))         # (2500, 2) 
     iY = np.zeros((n, no_dims))         # (2500, 2)
     gains = np.ones((n, no_dims))       # (2500, 2)
+    cost_list = []
 
     # Compute P-values
     P = x2p(X, 1e-5, perplexity)
@@ -193,16 +195,17 @@ def tsne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
         if (iter + 1) % 10 == 0:
             C = np.sum(P * np.log(P / Q))
             print("Iteration %d: error is %f" % (iter + 1, C))
+            cost_list.append(C)
 
         # Stop lying about P-values
         if iter == 100:
             P = P / 4.
 
     # Return solution
-    return Y
+    return Y, cost_list, P, Q
 
 
-def sne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
+def sne(origin_X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
     """
         Runs symmetric SNE on the dataset in the NxD array X to reduce its
         dimensionality to no_dims dimensions. The syntaxis of the function is
@@ -221,6 +224,7 @@ def sne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
         return -1
 
     # Initialize variables
+    X = origin_X.copy()
     X = pca(X, initial_dims).real       # X shape after PCAL (2500, 50)
     (n, d) = X.shape
     max_iter = 100
@@ -239,6 +243,7 @@ def sne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
     P = P / np.sum(P)
     P = P * 4.				# early exaggeration
     P = np.maximum(P, 1e-12)
+    cost_list = []
 
     # Run iterations
     for iter in range(max_iter):
@@ -279,28 +284,53 @@ def sne(X=np.array([]), no_dims=2, initial_dims=50, perplexity=30.0):
         if (iter + 1) % 10 == 0:
             C = np.sum(P * np.log(P / Q))
             print("Iteration %d: error is %f" % (iter + 1, C))
+            cost_list.append(C)
 
         # Stop lying about P-values
         if iter == 100:
             P = P / 4.
 
     # Return solution
-    return Y
+    return Y, cost_list, P, Q
 
 if __name__ == "__main__":
     print("Run Y = tsne.tsne(X, no_dims, perplexity) to perform t-SNE on your dataset.")
     print("Running example on 2,500 MNIST digits...")
     X = np.loadtxt("mnist2500_X.txt")
     labels = np.loadtxt("mnist2500_labels.txt")
+    #X = X[:500, ]
+    #labels = labels[:500, ]
 
+    # Q1 & Q2
     # -------------------------------------------------------
     # Adopt T-SNE
     # -------------------------------------------------------
-    Y = tsne(X, 2, 50, 20.0)
+    Y, cost_list, P_tsne, Q_tsne = tsne(X, 2, 50, 20.0)
     drawScatter(Y, labels, 'tsne_result.png')
+    drawCost(cost_list, 'tsne_cost_curve.png')
+    P_tsne = formCorrelationMatrix(P_tsne, labels)
+    Q_tsne = formCorrelationMatrix(Q_tsne, labels)
 
     # -------------------------------------------------------
     # Adopt Symmetric SNE
     # -------------------------------------------------------
-    Y = sne(X, 2, 50, 20.0)
+    Y, cost_list, P_sne, Q_sne = sne(X, 2, 50, 20.0)
     drawScatter(Y, labels, 'sne_result.png')
+    drawCost(cost_list, 'sne_cost_curve.png')
+
+    # Q3
+    P_tsne = formCorrelationMatrix(P_tsne, labels)
+    Q_tsne = formCorrelationMatrix(Q_tsne, labels)
+    drawCorrelationMatrix(P_tsne, 'P_tsne.png')
+    drawCorrelationMatrix(Q_tsne, 'Q_tsne.png')
+    P_sne = formCorrelationMatrix(P_sne, labels)
+    Q_sne = formCorrelationMatrix(Q_sne, labels)
+    drawCorrelationMatrix(P_sne, 'P_sne.png')
+    drawCorrelationMatrix(Q_sne, 'Q_sne.png')
+
+    # Q4
+    # Adopt different perplexity
+    Y, cost_list, _, __ = tsne(X, 2, 50, 5.0)
+    drawScatter(Y, labels, 'tsne_result_5.png')
+    Y, cost_list, _, __ = tsne(X, 2, 50, 100.0)
+    drawScatter(Y, labels, 'tsne_result_100.png')
