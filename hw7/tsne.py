@@ -71,7 +71,7 @@ def x2p(X=np.array([]), tol=1e-5, perplexity=30.0):
         # Evaluate whether the perplexity is within tolerance
         Hdiff = H - logU
         tries = 0
-        while np.abs(Hdiff) > tol and tries < 50:
+        while np.abs(Hdiff) > tol and tries < 1:
 
             # If not, increase or decrease precision
             if Hdiff > 0:
@@ -298,8 +298,9 @@ if __name__ == "__main__":
     print("Running example on 2,500 MNIST digits...")
     X = np.loadtxt("mnist2500_X.txt")
     labels = np.loadtxt("mnist2500_labels.txt")
-    #X = X[:500, ]
-    #labels = labels[:500, ]
+    X = X[:500, ]
+    labels = labels[:500, ]
+    # print(labels)
 
     # Q1 & Q2
     # -------------------------------------------------------
@@ -308,29 +309,44 @@ if __name__ == "__main__":
     Y, cost_list, P_tsne, Q_tsne = tsne(X, 2, 50, 20.0)
     drawScatter(Y, labels, 'tsne_result.png')
     drawCost(cost_list, 'tsne_cost_curve.png')
+    # print(P_tsne)   
+    print(np.min(P_tsne), np.max(P_tsne))
+    P_tsne += (np.eye(np.shape(P_tsne)[0]) * np.max(P_tsne))
+    drawCorrelationMatrix(P_tsne, 'P_tsne_before.png')
     P_tsne = formCorrelationMatrix(P_tsne, labels)
     Q_tsne = formCorrelationMatrix(Q_tsne, labels)
+    # print(P_tsne)
+    # for i in range(np.shape(P_tsne)[0]):
+    #     P_tsne[i][i] = 1.
+    #     break
 
     # -------------------------------------------------------
     # Adopt Symmetric SNE
     # -------------------------------------------------------
+    """
     Y, cost_list, P_sne, Q_sne = sne(X, 2, 50, 20.0)
     drawScatter(Y, labels, 'sne_result.png')
     drawCost(cost_list, 'sne_cost_curve.png')
+    """
 
     # Q3
-    P_tsne = formCorrelationMatrix(P_tsne, labels)
-    Q_tsne = formCorrelationMatrix(Q_tsne, labels)
-    drawCorrelationMatrix(P_tsne, 'P_tsne.png')
+    #P_tsne = formCorrelationMatrix(P_tsne, labels)
+    #Q_tsne = formCorrelationMatrix(Q_tsne, labels)
+    drawCorrelationMatrix(P_tsne, 'P_tsne_after.png')
     drawCorrelationMatrix(Q_tsne, 'Q_tsne.png')
+
+    """
     P_sne = formCorrelationMatrix(P_sne, labels)
     Q_sne = formCorrelationMatrix(Q_sne, labels)
     drawCorrelationMatrix(P_sne, 'P_sne.png')
     drawCorrelationMatrix(Q_sne, 'Q_sne.png')
+    """
 
     # Q4
     # Adopt different perplexity
+    """
     Y, cost_list, _, __ = tsne(X, 2, 50, 5.0)
     drawScatter(Y, labels, 'tsne_result_5.png')
     Y, cost_list, _, __ = tsne(X, 2, 50, 100.0)
     drawScatter(Y, labels, 'tsne_result_100.png')
+    """
