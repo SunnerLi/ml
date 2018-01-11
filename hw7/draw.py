@@ -82,53 +82,55 @@ def formCorrelationMatrix(C, labels):
     current_ordering = initial_ordering
     initial_score = score(C, labels_num_list)
     current_score = initial_score
-    for i in range(1000):
-        # Find the best row swap to make
-        best_C = current_C
-        best_ordering = current_ordering
-        best_score = current_score
-        for row1 in range(n_variables):
-            for row2 in range(n_variables):
-                if row1 == row2:
-                    continue
-                if np.argsort(labels)[row1] != np.argsort(labels)[row2]:
-                    continue
-                option_ordering = best_ordering.copy()
-                option_ordering[row1] = best_ordering[row2]
-                option_ordering[row2] = best_ordering[row1]
-                option_C = swap_rows(best_C, row1, row2)
-                option_score = score(option_C, labels_num_list)
-
-                if option_score > best_score:
-                    best_C = option_C
-                    best_ordering = option_ordering
-                    best_score = option_score
-
-        for row1 in range(n_variables - 1, -1, -1):
-            for row2 in range(n_variables - 1, -1, -1):
-                if row1 == row2:
-                    continue
-                if np.argsort(labels)[row1] != np.argsort(labels)[row2]:
-                    continue
-                option_ordering = best_ordering.copy()
-                option_ordering[row1] = best_ordering[row2]
-                option_ordering[row2] = best_ordering[row1]
-                option_C = swap_rows(best_C, row1, row2)
-                option_score = score(option_C, labels_num_list)
-
-                if option_score > best_score:
-                    best_C = option_C
-                    best_ordering = option_ordering
-                    best_score = option_score
-
-        if best_score > current_score:
-            # Perform the best row swap
-            current_C = best_C
-            current_ordering = best_ordering
-            current_score = best_score
-        else:
-            # No row swap found that improves the solution, we're done
-            break
+    if np.shape(current_C)[0] < 500:
+        for i in range(1000):
+            print(i)
+            # Find the best row swap to make
+            best_C = current_C
+            best_ordering = current_ordering
+            best_score = current_score
+            for row1 in range(n_variables):
+                for row2 in range(n_variables):
+                    if row1 == row2:
+                        continue
+                    if np.argsort(labels)[row1] != np.argsort(labels)[row2]:
+                        continue
+                    option_ordering = best_ordering.copy()
+                    option_ordering[row1] = best_ordering[row2]
+                    option_ordering[row2] = best_ordering[row1]
+                    option_C = swap_rows(best_C, row1, row2)
+                    option_score = score(option_C, labels_num_list)
+    
+                    if option_score > best_score:
+                        best_C = option_C
+                        best_ordering = option_ordering
+                        best_score = option_score
+    
+            for row1 in range(n_variables - 1, -1, -1):
+                for row2 in range(n_variables - 1, -1, -1):
+                    if row1 == row2:
+                        continue
+                    if np.argsort(labels)[row1] != np.argsort(labels)[row2]:
+                        continue
+                    option_ordering = best_ordering.copy()
+                    option_ordering[row1] = best_ordering[row2]
+                    option_ordering[row2] = best_ordering[row1]
+                    option_C = swap_rows(best_C, row1, row2)
+                    option_score = score(option_C, labels_num_list)
+    
+                    if option_score > best_score:
+                        best_C = option_C
+                        best_ordering = option_ordering
+                        best_score = option_score
+    
+            if best_score > current_score:
+                # Perform the best row swap
+                current_C = best_C
+                current_ordering = best_ordering
+                current_score = best_score
+            else:
+                # No row swap found that improves the solution, we're done
+                break
         
     return C
 
